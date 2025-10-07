@@ -3,6 +3,7 @@ package com.abhinav.taskmanager.Controller;
 import com.abhinav.taskmanager.Models.Task;
 import com.abhinav.taskmanager.Service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,8 +35,8 @@ public class TaskController {
         return removed ? "Task Deleted" : "Task not found";
     }
 
-    @GetMapping("/execute")
-    public String executeAllTasks(){
-        return taskService.executeTasksSequentially();
+    @PostMapping("/execute")
+    public ResponseEntity<String> executeAllTasks(){
+        return ResponseEntity.ok(taskService.executeAll());
     }
 }
