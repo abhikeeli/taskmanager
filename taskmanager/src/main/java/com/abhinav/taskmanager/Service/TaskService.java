@@ -1,6 +1,7 @@
 package com.abhinav.taskmanager.Service;
 
 import com.abhinav.taskmanager.Models.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -11,9 +12,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @Service
-public class TaskService {
+public class TaskService{
     private final List<Task> taskQueue=new ArrayList<>();
+    private final LockManager lockManager;
     private int completedTasks =0;
+
+    public TaskService(LockManager lockManager) {
+        this.lockManager = lockManager;
+    }
 
     public Task addTask(Task task){
         taskQueue.add(task);
@@ -45,6 +51,7 @@ public class TaskService {
         return result.toString();
     }
     public String executeTask(Task task){
+        lockManager.acquire();
         StringBuilder sb =new StringBuilder();
             sb.append("Execute Task : ")
                     .append(task.getName())
@@ -59,6 +66,9 @@ public class TaskService {
                 Thread.currentThread().interrupt();
                 sb.append(" Task interrupted : ");
                 sb.append(task.getName()).append("\n");
+            }
+            finally {
+                lockManager.release();
             }
             task.setStatus("done");
         return sb.toString();
